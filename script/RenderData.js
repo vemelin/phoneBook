@@ -154,7 +154,6 @@ export class RenderData {
   createFooter(title) {
     const footer = document.createElement('footer');
     footer.classList.add('footer');
-    console.log(this.createContainer());
     const container = this.createContainer();
     footer.append(container);
     footer.container = container;
