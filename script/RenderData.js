@@ -31,6 +31,7 @@ export class RenderData {
         <th>Имя</th>
         <th>Фамилия</th>
         <th>Телефон</th>
+        <th></th>
       </tr>
     `);
     const tbody = document.createElement('tbody');
@@ -130,6 +131,10 @@ export class RenderData {
     app.append(header, main, table, form.overlay, footer);
     return {
       list: table.tbody,
+      logo,
+      addBtn: btns.btns[0],
+      popUp: form.overlay,
+      form: form.form,
     };
   }
   createRow({name: firstName, surname: lastName, phone}) {
@@ -138,17 +143,23 @@ export class RenderData {
     const tdFirstName = document.createElement('td');
     const tdLastName = document.createElement('td');
     const tdPhone = document.createElement('td');
+    const cta = document.createElement('td');
+    cta.setAttribute('align', 'right');
     const phoneLink = document.createElement('a');
     phoneLink.href = `tel:${phone}`;
     phoneLink.textContent = phone;
+    tr.phoneLink = phoneLink;
     tdFirstName.textContent = firstName;
     tdLastName.textContent = lastName;
     const btnRemove = document.createElement('button');
     btnRemove.classList.add('del-icon');
+    const editBtn = document.createElement('button');
+    editBtn.classList.add('edit-icon');
     tdDel.classList.add('delete');
     tdDel.append(btnRemove);
     tdPhone.append(phoneLink);
-    tr.append(tdDel, tdFirstName, tdLastName, tdPhone);
+    cta.append(editBtn);
+    tr.append(tdDel, tdFirstName, tdLastName, tdPhone, cta);
     return tr;
   }
   createFooter(title) {
@@ -165,10 +176,42 @@ export class RenderData {
   extractData(elem, data) {
     const rowList = data.data.map(this.createRow);
     elem.append(...rowList);
+    return rowList;
+  }
+  onHoverRow(rowList, logo) {
+    const titlePlaceholder = logo.textContent;
+    rowList.forEach(item => {
+      item.addEventListener('mouseenter', () => {
+        logo.textContent = item.phoneLink.textContent;
+      });
+      item.addEventListener('mouseleave', () => {
+        logo.textContent = titlePlaceholder;
+      });
+    });
   }
   init(title, data) {
-    const phoneBook = this.buildAppWrapper(title);
-    const { list } = phoneBook;
-    this.extractData(list, data);
+    const phonebook = this.buildAppWrapper(title);
+    const { list, logo, addBtn, popUp, form } = phonebook;
+    const rowList = this.extractData(list, data);
+    this.onHoverRow(rowList, logo);
+    document.addEventListener('click', e => {
+      let target = e.target;
+      if (target.textContent === 'Добавить') {
+        popUp.classList.add('is-visible');
+      } if (target.matches('.form-overlay')) {
+        popUp.classList.remove('is-visible');
+      } if (target.matches('.close')) {
+        popUp.classList.remove('is-visible');
+      } if (target.textContent === 'Отмена') {
+        e.preventDefault();
+        popUp.classList.remove('is-visible');
+      } if (target.type === 'submit') {
+        e.preventDefault();
+      } if (target.matches('.edit-icon')) {
+        popUp.classList.add('is-visible');
+        //Start function to edit every note
+        const title = document.querySelector('.form-title').textContent = 'Обновить';
+      }
+    });
   }
 }

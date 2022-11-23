@@ -1,5 +1,5 @@
 'use_strict';
-import {RenderData} from './RenderData.js';
+import { RenderData } from './RenderData.js';
 const phonebookName = document.querySelector('#app').getAttribute('set-phoonebook-name');
 const renderData = new RenderData('#app', phonebookName, {
   data:[

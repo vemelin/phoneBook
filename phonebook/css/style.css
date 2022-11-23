@@ -26,7 +26,7 @@ body {
   display: none;
 }
 
-.del-icon {
+.del-icon, .edit-icon {
   display: block;
   width: 10px;
   height: 10px;
@@ -36,6 +36,16 @@ body {
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
+}
+
+.edit-icon {
+  width: 32px;
+  height: 21px;
+  background-image: url("../img/edit.svg");
+}
+
+.align-icon {
+  text-align: right;
 }
 
 .delete.is-visible {
