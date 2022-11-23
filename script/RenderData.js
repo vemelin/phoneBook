@@ -28,8 +28,8 @@ export class RenderData {
     thead.insertAdjacentHTML('beforeend', `
       <tr>
         <th class="delete"></th>
-        <th>Имя</th>
-        <th>Фамилия</th>
+        <th data-type="string">Имя</th>
+        <th data-type="string">Фамилия</th>
         <th>Телефон</th>
         <th></th>
       </tr>
@@ -133,12 +133,14 @@ export class RenderData {
       list: table.tbody,
       logo,
       addBtn: btns.btns[0],
+      btnDel: btns.btns[1],
       popUp: form.overlay,
       form: form.form,
     };
   }
   createRow({name: firstName, surname: lastName, phone}) {
     const tr = document.createElement('tr');
+    tr.classList.add('contact')
     const tdDel = document.createElement('td');
     const tdFirstName = document.createElement('td');
     const tdLastName = document.createElement('td');
@@ -189,15 +191,54 @@ export class RenderData {
       });
     });
   }
+  sortRows(e) {
+    if (e.target.tagName != 'TH') return;
+    let th = e.target;
+    this.sortGrid(th.cellIndex, th.dataset.type);
+  }
+  sortGrid(colNum, type) {
+    const grid = document.querySelector('.table');
+    let tbody = grid.querySelector('tbody');
+    let rowsArray = Array.from(tbody.rows);
+    let compare;
+    if(colNum === 1)  {
+      compare = function(rowA, rowB) {
+        return rowA.cells.innerHTML > rowB.cells.innerHTML ? 1 : -1;
+      };
+    }
+    if(colNum === 2)  {
+      compare = function(rowA, rowB) {
+        return rowA.cells.innerHTML > rowB.cells.innerHTML ? 1 : -1;
+      };
+    }
+    rowsArray.sort(compare);
+    tbody.append(...rowsArray);
+  }
+
   init(title, data) {
     const phonebook = this.buildAppWrapper(title);
-    const { list, logo, addBtn, popUp, form } = phonebook;
+    const { 
+      list,
+      logo,
+      addBtn,
+      popUp,
+      form,
+      btnDel
+    } = phonebook;
     const rowList = this.extractData(list, data);
     this.onHoverRow(rowList, logo);
     document.addEventListener('click', e => {
       let target = e.target;
-      if (target.textContent === 'Добавить') {
+      this.sortRows(e);
+      //Delete rows
+      if(target === btnDel){
+        document.querySelectorAll('.delete').forEach(del => {
+          del.classList.toggle('is-visible')
+        });
+      } if (target.textContent === 'Добавить') {
         popUp.classList.add('is-visible');
+      } if (target.closest('.del-icon')) {
+        target.closest('.contact').remove();
       } if (target.matches('.form-overlay')) {
         popUp.classList.remove('is-visible');
       } if (target.matches('.close')) {
@@ -209,7 +250,7 @@ export class RenderData {
         e.preventDefault();
       } if (target.matches('.edit-icon')) {
         popUp.classList.add('is-visible');
-        //Start function to edit every note
+        //Create function to edit every note
         const title = document.querySelector('.form-title').textContent = 'Обновить';
       }
     });
