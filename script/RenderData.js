@@ -1,6 +1,7 @@
 'use_strict';
 export class RenderData {
   constructor(app, title, data) {
+    this.data = data;
     this.$el = document.querySelector(app);
     this.init(title, data);
   }
@@ -49,16 +50,16 @@ export class RenderData {
       <button class = "close" type="button"></button>
       <h2 class = "form-title">Добавить контакт</h2>
       <div class="form-group">
-        <label class="form-label" for="firstName">Имя</label>
-        <input class="form-input" name="firstName" id="firstName" type="text" />
+        <label class="form-label" for="name">Имя</label>
+        <input class="form-input" name="name" id="name" type="text" />
       </div>
       <div class="form-group">
-        <label class="form-label" for="lastName">Фамилия</label>
-        <input class="form-input" name="lastName" id="lastName" type="text" />
+        <label class="form-label" for="surname">Фамилия</label>
+        <input class="form-input" name="surname" id="surname" type="text" />
       </div>
       <div class="form-group">
-        <label class="form-label" for="phoneNumber">Тефлфон</label>
-        <input class="form-input" name="phoneNumber" id="phoneNumber" type="text" />
+        <label class="form-label" for="phone">Тефлфон</label>
+        <input class="form-input" name="phone" id="phone" type="text" />
       </div>
     `);
     const btns = this.createBtns([
@@ -124,18 +125,18 @@ export class RenderData {
       },
     ]);
     const table = this.createTable();
-    const form = this.createForm();
+    const { form, overlay } = this.createForm();
     const footer = this.createFooter(title);
     header.headerContainer.append(logo);
     main.mainContainer.append(btns.btnWrap);
-    app.append(header, main, table, form.overlay, footer);
+    app.append(header, main, table, overlay, footer);
     return {
       list: table.tbody,
       logo,
       addBtn: btns.btns[0],
       btnDel: btns.btns[1],
-      popUp: form.overlay,
-      form: form.form,
+      popUp: overlay,
+      form,
     };
   }
   createRow({name: firstName, surname: lastName, phone}) {
@@ -214,19 +215,24 @@ export class RenderData {
     rowsArray.sort(compare);
     tbody.append(...rowsArray);
   }
-
-  init(title, data) {
-    const phonebook = this.buildAppWrapper(title);
-    const { 
-      list,
-      logo,
-      addBtn,
-      popUp,
-      form,
-      btnDel
-    } = phonebook;
-    const rowList = this.extractData(list, data);
-    this.onHoverRow(rowList, logo);
+  modalControl(popUp) {
+    document.addEventListener('click', e => {
+      let target = e.target;
+      this.sortRows(e);
+      if (target.textContent === 'Добавить') {
+        popUp.classList.add('is-visible');
+      } if (target.matches('.form-overlay')) {
+        popUp.classList.remove('is-visible');
+      } if (target.matches('.close')) {
+        popUp.classList.remove('is-visible');
+      } if (target.matches('.edit-icon')) {
+        popUp.classList.add('is-visible');
+        //Create function to edit every note
+        const title = document.querySelector('.form-title').textContent = 'Обновить';
+      }
+    });
+  }
+  removeControl(btnDel) {
     document.addEventListener('click', e => {
       let target = e.target;
       this.sortRows(e);
@@ -235,24 +241,43 @@ export class RenderData {
         document.querySelectorAll('.delete').forEach(del => {
           del.classList.toggle('is-visible')
         });
-      } if (target.textContent === 'Добавить') {
-        popUp.classList.add('is-visible');
       } if (target.closest('.del-icon')) {
         target.closest('.contact').remove();
-      } if (target.matches('.form-overlay')) {
-        popUp.classList.remove('is-visible');
-      } if (target.matches('.close')) {
-        popUp.classList.remove('is-visible');
-      } if (target.textContent === 'Отмена') {
-        e.preventDefault();
-        popUp.classList.remove('is-visible');
-      } if (target.type === 'submit') {
-        e.preventDefault();
-      } if (target.matches('.edit-icon')) {
-        popUp.classList.add('is-visible');
-        //Create function to edit every note
-        const title = document.querySelector('.form-title').textContent = 'Обновить';
       }
     });
+  }
+  addContactData(contact) {
+    this.data.data.push(contact);
+    console.log(this.data.data);
+  }
+  addContactPage(contact, list) {
+    list.append(this.createRow(contact));
+  }
+  formControl(form, list, popUp){
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const close = () => popUp.classList.remove('is-visible');
+      const open = () => popUp.classList.add('is-visible');
+      const formData = new FormData(e.target);
+      const newContact = Object.fromEntries(formData);
+      this.addContactPage(newContact, list);
+      this.addContactData(newContact);
+      if (e.type === 'submit') {
+        form.reset();
+        close();
+      } if (e.textContent === 'Отмена') {
+        e.preventDefault();
+        popUp.classList.remove('is-visible');
+      } 
+    })
+  }
+  sendData(data) { console.log('Sending: ', data) }
+  init(title, data) {
+    const { list, logo, addBtn, popUp, form, btnDel } = this.buildAppWrapper(title);;
+    const rowList = this.extractData(list, data);
+    this.onHoverRow(rowList, logo);
+    this.modalControl(popUp);
+    this.removeControl(btnDel);
+    this.formControl(form, list, popUp);
   }
 }
