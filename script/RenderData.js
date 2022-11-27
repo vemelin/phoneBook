@@ -1,9 +1,32 @@
 'use_strict';
 export class RenderData {
-  constructor(app, title, data) {
+  constructor(key, app, title, data) {
     this.data = data;
     this.$el = document.querySelector(app);
     this.init(title, data);
+    this.setStorage(key);
+    // this.removeStorage(key, '+79999999999');
+  }
+  getStorage(key) {
+    if(localStorage.getItem(key)) {
+      return JSON.parse(localStorage.getItem(key));
+    } else {
+      return this.data.data;
+    }
+  }
+  setStorage(key, data){
+    if(data) {
+      console.log('arr');
+      this.data.data.push(data);
+      localStorage.setItem(key, JSON.stringify(this.data.data))
+    } else {
+      return this.data.data;
+    }
+  }
+  removeStorage(key, itemToRemove){
+    const dataStorage = this.getStorage(key);
+    let temp = dataStorage.filter(item => item.phone != itemToRemove);
+    localStorage.setItem(key, JSON.stringify(temp));
   }
   createBtns(arr) {
     const btnWrap = document.createElement('div');
@@ -177,7 +200,9 @@ export class RenderData {
     return footer;
   }
   extractData(elem, data) {
-    const rowList = data.data.map(this.createRow);
+    this.getStorage('phoneBookData');
+    const checkList = this.getStorage('phoneBookData');
+    const rowList = checkList.map(this.createRow);
     elem.append(...rowList);
     return rowList;
   }
@@ -246,10 +271,6 @@ export class RenderData {
       }
     });
   }
-  addContactData(contact) {
-    this.data.data.push(contact);
-    console.log(this.data.data);
-  }
   addContactPage(contact, list) {
     list.append(this.createRow(contact));
   }
@@ -261,14 +282,14 @@ export class RenderData {
       const formData = new FormData(e.target);
       const newContact = Object.fromEntries(formData);
       this.addContactPage(newContact, list);
-      this.addContactData(newContact);
+      this.setStorage('phoneBookData', newContact);
       if (e.type === 'submit') {
         form.reset();
         close();
       } if (e.textContent === 'Отмена') {
         e.preventDefault();
         popUp.classList.remove('is-visible');
-      } 
+      }
     })
   }
   sendData(data) { console.log('Sending: ', data) }
