@@ -16,7 +16,6 @@ export class RenderData {
   }
   setStorage(key, data){
     if(data) {
-      console.log('arr');
       this.data.data.push(data);
       localStorage.setItem(key, JSON.stringify(this.data.data))
     } else {
