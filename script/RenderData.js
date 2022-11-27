@@ -22,9 +22,9 @@ export class RenderData {
       return this.data.data;
     }
   }
-  removeStorage(key, itemToRemove){
+  removeStorage(key, phone){
     const dataStorage = this.getStorage(key);
-    let temp = dataStorage.filter(item => item.phone != itemToRemove);
+    let temp = dataStorage.filter(item => item.phone != phone);
     localStorage.setItem(key, JSON.stringify(temp));
   }
   createBtns(arr) {
