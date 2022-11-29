@@ -12,11 +12,16 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.1/css/bootstrap.min.css">
   <link rel="stylesheet" href="phonebook/css/style.css">
   <script type="module" src="./script/main.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      phoneBookInit('#app', 'Пупкин');
+    });
+  </script>
 
 </head>
 
 <body>
-  <div class="" id="app" set-phoonebook-name="Пупкин"></div>
+  <div id="app"></div>
 </body>
 
 </html>
